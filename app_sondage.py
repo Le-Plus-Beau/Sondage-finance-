@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
-from pathlib import Path
 from datetime import datetime
 import uuid
+from streamlit_gsheets import GSheetsConnection
 
 
 # =============================
@@ -15,33 +15,46 @@ st.set_page_config(
     layout="centered"
 )
 
-FICHIER_RESULTATS = Path("resultats_sondage.csv")
+
+# =============================
+# Connexion Google Sheets
+# =============================
+
+conn = st.connection(
+    "gsheets",
+    type=GSheetsConnection
+)
+
+NOM_FEUILLE = "Feuille 1"
 
 
 # =============================
-# Fonctions
+# Fonction d'enregistrement
 # =============================
 
 def enregistrer_reponse(reponse):
     nouvelle_reponse = pd.DataFrame([reponse])
 
-    if FICHIER_RESULTATS.exists():
-        anciennes_reponses = pd.read_csv(
-            FICHIER_RESULTATS,
-            encoding="utf-8-sig"
+    try:
+        anciennes_reponses = conn.read(
+            worksheet=NOM_FEUILLE,
+            ttl=0
         )
 
-        resultats = pd.concat(
-            [anciennes_reponses, nouvelle_reponse],
-            ignore_index=True
-        )
-    else:
+        if anciennes_reponses.empty:
+            resultats = nouvelle_reponse
+        else:
+            resultats = pd.concat(
+                [anciennes_reponses, nouvelle_reponse],
+                ignore_index=True
+            )
+
+    except Exception:
         resultats = nouvelle_reponse
 
-    resultats.to_csv(
-        FICHIER_RESULTATS,
-        index=False,
-        encoding="utf-8-sig"
+    conn.update(
+        worksheet=NOM_FEUILLE,
+        data=resultats
     )
 
 
@@ -61,6 +74,7 @@ st.info(
     "Questionnaire anonyme : ne renseignez aucune donnée bancaire, "
     "nom complet ou information sensible."
 )
+
 
 with st.form("formulaire_sondage"):
 
@@ -319,7 +333,7 @@ with st.form("formulaire_sondage"):
     )
 
     # -------------------------
-    # Social
+    # Dimension sociale
     # -------------------------
 
     st.header("👥 Dimension sociale")
@@ -347,34 +361,42 @@ with st.form("formulaire_sondage"):
 # =============================
 
 if envoyer:
+
     reponse = {
-    "id_reponse": str(uuid.uuid4()),
-    "date_reponse": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    "age": age,
-    "situation": situation,
-    "revenu": revenu,
-    "outils_actuels": ", ".join(outils_actuels),
-    "frequence_consultation": frequence,
-    "difficulte_gestion": difficulte,
-    "categories_depenses": ", ".join(categories_depenses),
-    "difficultes": ", ".join(declencheur),
-    "objectifs": ", ".join(objectif),
-    "fonctionnalites": ", ".join(fonctionnalites),
-    "a_deja_utilise_app": deja_utilise,
-    "a_abandonne_app": abandon,
-    "raison_abandon": ", ".join(raison_abandon),
-    "connexion_bancaire": connexion_bancaire,
-    "freins_bancaires": ", ".join(freins_bancaires),
-    "intention_usage": intention_usage,
-    "prix_premium": prix,
-    "aisance_sociale": aisance_sociale,
+        "id_reponse": str(uuid.uuid4()),
+        "date_reponse": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "age": age,
+        "situation": situation,
+        "revenu": revenu,
+        "outils_actuels": ", ".join(outils_actuels),
+        "frequence_consultation": frequence,
+        "difficulte_gestion": difficulte,
+        "categories_depenses": ", ".join(categories_depenses),
+        "difficultes": ", ".join(declencheur),
+        "objectifs": ", ".join(objectif),
+        "fonctionnalites": ", ".join(fonctionnalites),
+        "a_deja_utilise_app": deja_utilise,
+        "a_abandonne_app": abandon,
+        "raison_abandon": ", ".join(raison_abandon),
+        "connexion_bancaire": connexion_bancaire,
+        "freins_bancaires": ", ".join(freins_bancaires),
+        "intention_usage": intention_usage,
+        "prix_premium": prix,
+        "aisance_sociale": aisance_sociale,
+        "commentaire": commentaire
+    }
 
-    "commentaire": commentaire
-}
+    try:
+        enregistrer_reponse(reponse)
 
-    enregistrer_reponse(reponse)
+        st.success(
+            "Merci pour votre participation ! "
+            "Votre réponse a bien été enregistrée."
+        )
 
-    st.success(
-        "Merci pour votre participation ! "
-        "Votre réponse a bien été enregistrée."
-    )
+    except Exception as erreur:
+        st.error(
+            "Une erreur est survenue lors de l'enregistrement. "
+            "Vérifiez la connexion Google Sheets."
+        )
+        st.exception(erreur)
