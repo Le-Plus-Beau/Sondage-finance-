@@ -1,8 +1,7 @@
 import streamlit as st
-import pandas as pd
+import requests
 from datetime import datetime
 import uuid
-from streamlit_gsheets import GSheetsConnection
 
 
 # =============================
@@ -15,47 +14,28 @@ st.set_page_config(
     layout="centered"
 )
 
-
-# =============================
-# Connexion Google Sheets
-# =============================
-
-conn = st.connection(
-    "gsheets",
-    type=GSheetsConnection
+URL_API = (
+    "https://script.google.com/macros/s/"
+    "AKfycbxE-6KtcMMeppgp9qQOyNy5Q43KS54jKa1-KVkRalQhhyJhN9UVyd1XfUPQtLeDQhAUvQ"
+    "/exec"
 )
 
-NOM_FEUILLE = "Feuille 1"
-
 
 # =============================
-# Fonction d'enregistrement
+# Enregistrement via Apps Script
 # =============================
 
 def enregistrer_reponse(reponse):
-    nouvelle_reponse = pd.DataFrame([reponse])
-
-    try:
-        anciennes_reponses = conn.read(
-            worksheet=NOM_FEUILLE,
-            ttl=0
-        )
-
-        if anciennes_reponses.empty:
-            resultats = nouvelle_reponse
-        else:
-            resultats = pd.concat(
-                [anciennes_reponses, nouvelle_reponse],
-                ignore_index=True
-            )
-
-    except Exception:
-        resultats = nouvelle_reponse
-
-    conn.update(
-        worksheet=NOM_FEUILLE,
-        data=resultats
+    resultat = requests.post(
+        URL_API,
+        json=reponse,
+        timeout=30
     )
+
+    if resultat.status_code != 200:
+        raise Exception(
+            f"Erreur lors de l'envoi : {resultat.status_code} - {resultat.text}"
+        )
 
 
 # =============================
@@ -77,10 +57,6 @@ st.info(
 
 
 with st.form("formulaire_sondage"):
-
-    # -------------------------
-    # Profil
-    # -------------------------
 
     st.header("👤 À propos de vous")
 
@@ -124,17 +100,13 @@ with st.form("formulaire_sondage"):
         ]
     )
 
-    # -------------------------
-    # Habitudes actuelles
-    # -------------------------
-
     st.header("📊 Vos habitudes")
 
     outils_actuels = st.multiselect(
         "Quels outils utilisez-vous pour suivre vos dépenses ?",
         [
             "Application bancaire",
-            "Tableur Excel ou Google Sheets",
+            "Excel ou Google Sheets",
             "Application spécialisée",
             "Carnet ou notes papier",
             "Notes sur téléphone",
@@ -183,10 +155,6 @@ with st.form("formulaire_sondage"):
         ]
     )
 
-    # -------------------------
-    # Difficultés et objectifs
-    # -------------------------
-
     st.header("🎯 Vos besoins")
 
     declencheur = st.multiselect(
@@ -234,28 +202,16 @@ with st.form("formulaire_sondage"):
         ]
     )
 
-    # -------------------------
-    # Applications existantes
-    # -------------------------
-
     st.header("📱 Vos expériences avec les applications")
 
     deja_utilise = st.radio(
         "Avez-vous déjà utilisé une application de gestion des dépenses ?",
-        [
-            "Oui",
-            "Non",
-            "Je ne sais plus"
-        ]
+        ["Oui", "Non", "Je ne sais plus"]
     )
 
     abandon = st.radio(
         "Avez-vous déjà abandonné l'utilisation d'une telle application ?",
-        [
-            "Oui",
-            "Non",
-            "Je n'en ai jamais utilisé"
-        ]
+        ["Oui", "Non", "Je n'en ai jamais utilisé"]
     )
 
     raison_abandon = st.multiselect(
@@ -273,14 +229,10 @@ with st.form("formulaire_sondage"):
         ]
     )
 
-    # -------------------------
-    # Connexion bancaire
-    # -------------------------
-
     st.header("🏦 Connexion bancaire")
 
     connexion_bancaire = st.radio(
-        "Seriez-vous prêt(e) à connecter votre compte bancaire à une application ?",
+        "Seriez-vous prêt(e) à connecter votre compte bancaire ?",
         [
             "Oui, sans problème",
             "Oui, mais seulement si les garanties sont claires",
@@ -303,14 +255,10 @@ with st.form("formulaire_sondage"):
         ]
     )
 
-    # -------------------------
-    # Intérêt et prix
-    # -------------------------
-
     st.header("💡 Votre intérêt")
 
     intention_usage = st.select_slider(
-        "Quelle serait votre probabilité d'utiliser une application répondant à vos besoins ?",
+        "Quelle serait votre probabilité d'utiliser cette application ?",
         options=[
             "Très faible",
             "Faible",
@@ -321,7 +269,7 @@ with st.form("formulaire_sondage"):
     )
 
     prix = st.selectbox(
-        "Quel montant mensuel pourriez-vous envisager pour une version complète ?",
+        "Quel montant mensuel pourriez-vous envisager ?",
         [
             "Je ne paierais pas",
             "Moins de 3 €",
@@ -331,10 +279,6 @@ with st.form("formulaire_sondage"):
             "Je ne sais pas"
         ]
     )
-
-    # -------------------------
-    # Dimension sociale
-    # -------------------------
 
     st.header("👥 Dimension sociale")
 
@@ -357,7 +301,7 @@ with st.form("formulaire_sondage"):
 
 
 # =============================
-# Enregistrement
+# Envoi des réponses
 # =============================
 
 if envoyer:
@@ -390,13 +334,11 @@ if envoyer:
         enregistrer_reponse(reponse)
 
         st.success(
-            "Merci pour votre participation ! "
-            "Votre réponse a bien été enregistrée."
+            "✅ Merci ! Votre réponse a bien été enregistrée."
         )
 
     except Exception as erreur:
         st.error(
-            "Une erreur est survenue lors de l'enregistrement. "
-            "Vérifiez la connexion Google Sheets."
+            "❌ Une erreur est survenue lors de l'enregistrement."
         )
         st.exception(erreur)
