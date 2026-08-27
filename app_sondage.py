@@ -23,6 +23,7 @@ URL_API = (
 
 CLE_API = st.secrets["CLE_API"]
 
+
 # =============================
 # Enregistrement via API
 # =============================
@@ -200,14 +201,26 @@ with st.form("questionnaire"):
         ["Oui", "Non"]
     )
 
-    a_abandonne_app = st.radio(
-        "Avez-vous abandonné cette application ?",
-        ["Oui", "Non", "Je n'en ai jamais utilisé"]
-    )
+    if a_deja_utilise_app == "Oui":
+        a_abandonne_app = st.radio(
+            "Avez-vous abandonné cette application ?",
+            ["Oui", "Non"]
+        )
 
-    raison_abandon = st.text_area(
-        "Pourquoi avez-vous abandonné ou pourriez-vous abandonner une telle application ?"
-    )
+        if a_abandonne_app == "Oui":
+            raison_abandon = st.text_area(
+                "Pourquoi avez-vous abandonné cette application ?",
+                placeholder=(
+                    "Exemple : application trop compliquée, "
+                    "manque de motivation, problèmes de connexion..."
+                )
+            )
+        else:
+            raison_abandon = ""
+
+    else:
+        a_abandonne_app = "Non concerné"
+        raison_abandon = ""
 
     connexion_bancaire = st.radio(
         "Seriez-vous prêt(e) à connecter votre compte bancaire ?",
