@@ -15,6 +15,8 @@ st.set_page_config(
     layout="centered"
 )
 
+CLE_API = st.secrets["CLE_API"]
+
 URL_API = (
     "https://script.google.com/macros/s/AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw/exec"
 )
@@ -368,6 +370,7 @@ commentaire = st.text_area(
 if st.button("🚀 Envoyer mes réponses"):
 
     donnees = {
+        "cle": CLE_API,
         "id_reponse": str(uuid.uuid4()),
         "date_reponse": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "age": age,
