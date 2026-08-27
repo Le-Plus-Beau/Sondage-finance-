@@ -1,4 +1,4 @@
-const CLE_SECRETE = "CHANGEZ_CETTE_CLE";
+const CLE_SECRETE = "BudgetApp_2026_CleSecrete_9xK72pLmQ4";
 const ID_TABLEUR = "1jUhGKTxuyQm0I2swoIiaMXJjLTiTj8vVkoVJsZJ90O8";
 const NOM_ONGLET = "Réponses";
 
@@ -28,6 +28,10 @@ const COLONNES = [
 
 function doPost(e) {
   try {
+    if (!e || !e.postData || !e.postData.contents) {
+      throw new Error("Aucune donnée reçue.");
+    }
+
     const donnees = JSON.parse(e.postData.contents);
 
     if (donnees.cle !== CLE_SECRETE) {
@@ -42,15 +46,18 @@ function doPost(e) {
       .getSheetByName(NOM_ONGLET);
 
     if (!feuille) {
-      throw new Error("L'onglet Réponses est introuvable.");
+      throw new Error("L'onglet « Réponses » est introuvable.");
     }
 
+    // Ajoute les en-têtes si la feuille est vide
     if (feuille.getLastRow() === 0) {
       feuille.appendRow(COLONNES);
     }
 
     const ligne = COLONNES.map(function(colonne) {
-      return donnees[colonne] || "";
+      return donnees[colonne] !== undefined
+        ? donnees[colonne]
+        : "";
     });
 
     feuille.appendRow(ligne);
