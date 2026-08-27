@@ -13,9 +13,7 @@ st.set_page_config(
 
 
 URL_API = (
-    "https://script.google.com/macros/s/"
-    "AKfycbygGOjQI9uZvfltRpkB7bfeHhgOlPMpc7YnW-TiGMcpxIErWGcPm4D5b-32lwuW1g8olQ"
-    "/exec"
+    "https://script.google.com/macros/s/AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw/exec"
 )
 
 CLE_API = st.secrets["CLE_API"]
