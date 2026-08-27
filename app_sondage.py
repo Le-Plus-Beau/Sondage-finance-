@@ -1,3 +1,4 @@
+const CLE_SECRETE = "CHANGEZ_CETTE_CLE";
 const ID_TABLEUR = "1jUhGKTxuyQm0I2swoIiaMXJjLTiTj8vVkoVJsZJ90O8";
 const NOM_ONGLET = "Réponses";
 
@@ -25,50 +26,56 @@ const COLONNES = [
   "commentaire"
 ];
 
-
 function doPost(e) {
   try {
+    const donnees = JSON.parse(e.postData.contents);
+
+    if (donnees.cle !== CLE_SECRETE) {
+      return reponseJSON({
+        success: false,
+        error: "Accès refusé"
+      });
+    }
+
     const feuille = SpreadsheetApp
       .openById(ID_TABLEUR)
       .getSheetByName(NOM_ONGLET);
 
     if (!feuille) {
-      throw new Error("L'onglet « Réponses » est introuvable.");
+      throw new Error("L'onglet Réponses est introuvable.");
     }
 
-    const donnees = JSON.parse(e.postData.contents);
-
-    // Création automatique de la ligne d'en-têtes
     if (feuille.getLastRow() === 0) {
       feuille.appendRow(COLONNES);
     }
 
     const ligne = COLONNES.map(function(colonne) {
-      return donnees[colonne] ?? "";
+      return donnees[colonne] || "";
     });
 
     feuille.appendRow(ligne);
 
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        success: true,
-        message: "Réponse enregistrée"
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return reponseJSON({
+      success: true,
+      message: "Réponse enregistrée"
+    });
 
   } catch (erreur) {
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        success: false,
-        error: erreur.message
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return reponseJSON({
+      success: false,
+      error: erreur.message
+    });
   }
 }
 
-
 function doGet() {
   return ContentService
-    .createTextOutput("API du sondage active")
+    .createTextOutput("API Google Sheets active")
     .setMimeType(ContentService.MimeType.TEXT);
+}
+
+function reponseJSON(contenu) {
+  return ContentService
+    .createTextOutput(JSON.stringify(contenu))
+    .setMimeType(ContentService.MimeType.JSON);
 }
