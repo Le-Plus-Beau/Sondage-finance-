@@ -23,45 +23,6 @@ URL_API = (
 
 CLE_API = st.secrets["CLE_API"]
 
-
-# =============================
-# Style des choix multiples
-# =============================
-
-st.markdown(
-    """
-    <style>
-    /* Étiquettes sélectionnées dans les multiselect */
-    [data-testid="stMultiSelect"] div[data-baseweb="tag"] {
-        background-color: #95D5B2 !important;
-        border: 1px solid #52B788 !important;
-        border-radius: 8px !important;
-        box-shadow: none !important;
-    }
-
-    /* Texte à l'intérieur des choix */
-    [data-testid="stMultiSelect"] div[data-baseweb="tag"] span {
-        color: #081C15 !important;
-        font-weight: 600 !important;
-    }
-
-    /* Icône de suppression */
-    [data-testid="stMultiSelect"] div[data-baseweb="tag"] svg {
-        fill: #1B4332 !important;
-        color: #1B4332 !important;
-    }
-
-    /* Options sélectionnées dans la liste déroulante */
-    [data-testid="stMultiSelect"] li[aria-selected="true"] {
-        background-color: #D8F3DC !important;
-        color: #1B4332 !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-
 # =============================
 # Enregistrement via API
 # =============================
