@@ -15,6 +15,26 @@ st.set_page_config(
     layout="centered"
 )
 
+# Masquer le menu, l'en-tête et le pied de page Streamlit
+st.markdown(
+    """
+    <style>
+    #MainMenu {
+        visibility: hidden;
+    }
+
+    header {
+        visibility: hidden;
+    }
+
+    footer {
+        visibility: hidden;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 URL_API = (
     "https://script.google.com/macros/s/"
     "AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw"
