@@ -5,25 +5,68 @@ import requests
 import streamlit as st
 
 
+# =============================
+# Configuration
+# =============================
+
 st.set_page_config(
     page_title="Gestion des dépenses",
     page_icon="💰",
     layout="centered"
 )
 
-
 URL_API = (
-    "https://script.google.com/macros/s/AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw/exec"
+    "https://script.google.com/macros/s/"
+    "AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw"
+    "/exec"
 )
 
 CLE_API = st.secrets["CLE_API"]
 
 
-def enregistrer_reponse(reponse):
-    """
-    Envoie une réponse à Google Apps Script.
-    """
+# =============================
+# Style des choix multiples
+# =============================
 
+st.markdown(
+    """
+    <style>
+    /* Étiquettes sélectionnées dans les multiselect */
+    [data-testid="stMultiSelect"] div[data-baseweb="tag"] {
+        background-color: #95D5B2 !important;
+        border: 1px solid #52B788 !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+    }
+
+    /* Texte à l'intérieur des choix */
+    [data-testid="stMultiSelect"] div[data-baseweb="tag"] span {
+        color: #081C15 !important;
+        font-weight: 600 !important;
+    }
+
+    /* Icône de suppression */
+    [data-testid="stMultiSelect"] div[data-baseweb="tag"] svg {
+        fill: #1B4332 !important;
+        color: #1B4332 !important;
+    }
+
+    /* Options sélectionnées dans la liste déroulante */
+    [data-testid="stMultiSelect"] li[aria-selected="true"] {
+        background-color: #D8F3DC !important;
+        color: #1B4332 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# =============================
+# Enregistrement via API
+# =============================
+
+def enregistrer_reponse(reponse):
     donnees = dict(reponse)
     donnees["cle"] = CLE_API
 
@@ -35,7 +78,6 @@ def enregistrer_reponse(reponse):
         )
 
         resultat.raise_for_status()
-
         retour = resultat.json()
 
         if retour.get("success") is not True:
@@ -55,40 +97,22 @@ def enregistrer_reponse(reponse):
             "La réponse de Google Apps Script n'est pas un JSON valide."
         )
 
-st.markdown(
-    """
-    <style>
-    /* Cases sélectionnées dans les multiselect */
-    div[data-baseweb="tag"] {
-        background-color: #b7e4c7 !important; /* vert pastel */
-        color: #1b4332 !important;
-        border: 1px solid #95d5b2 !important;
-        border-radius: 8px !important;
-    }
 
-    /* Texte des choix sélectionnés */
-    div[data-baseweb="tag"] span {
-        color: #1b4332 !important;
-        font-weight: 500;
-    }
-
-    /* Bouton pour supprimer une sélection */
-    div[data-baseweb="tag"] svg {
-        color: #2d6a4f !important;
-    }
-
-    /* Option sélectionnée dans le menu déroulant */
-    li[aria-selected="true"] {
-        background-color: #d8f3dc !important;
-        color: #1b4332 !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# =============================
+# Interface
+# =============================
 
 st.title("💰 Gestion des dépenses personnelles")
-st.write("Répondez à ce court questionnaire.")
+
+st.write(
+    "Répondez à ce court questionnaire afin de nous aider "
+    "à concevoir une application simple et motivante."
+)
+
+st.info(
+    "Questionnaire anonyme : ne renseignez aucune donnée bancaire, "
+    "nom complet ou information sensible."
+)
 
 
 with st.form("questionnaire"):
@@ -97,6 +121,7 @@ with st.form("questionnaire"):
         "Quel est votre âge ?",
         min_value=15,
         max_value=100,
+        value=25,
         step=1
     )
 
@@ -283,6 +308,10 @@ with st.form("questionnaire"):
         "Envoyer ma réponse 🚀"
     )
 
+
+# =============================
+# Traitement du formulaire
+# =============================
 
 if envoyer:
 
