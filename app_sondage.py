@@ -68,7 +68,6 @@ def enregistrer_reponse(donnees):
 
         response.raise_for_status()
 
-        # Google Apps Script peut retourner du texte ou du JSON
         try:
             resultat = response.json()
 
@@ -82,7 +81,6 @@ def enregistrer_reponse(donnees):
                     )
 
         except ValueError:
-            # Réponse texte acceptée
             pass
 
         return True
@@ -104,7 +102,7 @@ st.title("💰 Gestion des dépenses personnelles")
 
 st.write(
     "Ce questionnaire nous aide à concevoir une application simple, "
-    "visuelle et motivante pour mieux gérer ses dépenses."
+    "visuelle et agréable pour mieux gérer ses dépenses."
 )
 
 st.info(
@@ -191,7 +189,6 @@ with st.form("formulaire_sondage"):
             "Je ne sais pas où part mon argent",
             "J'oublie certaines dépenses",
             "J'ai du mal à épargner",
-            "Je manque de motivation",
             "Je trouve cela compliqué",
             "Aucune difficulté particulière",
             "Autre"
@@ -244,11 +241,7 @@ with st.form("formulaire_sondage"):
             "Objectifs d'épargne",
             "Conseils personnalisés",
             "Détection des dépenses inhabituelles",
-            "Notifications motivantes",
-            "Points et badges",
-            "Défis personnels",
-            "Défis entre amis",
-            "Classements anonymes"
+            "Notifications utiles"
         ]
     )
 
@@ -271,52 +264,6 @@ with st.form("formulaire_sondage"):
             "Je ne veux pas partager mes données",
             "Cela ne me dérange pas",
             "Autre"
-        ]
-    )
-
-    st.subheader("🎮 Motivation et gamification")
-
-    intention_usage = st.radio(
-        "Une application ludique vous aiderait-elle à mieux gérer votre argent ?",
-        [
-            "Certainement",
-            "Probablement",
-            "Je ne sais pas",
-            "Probablement pas",
-            "Certainement pas"
-        ]
-    )
-
-    a_deja_utilise_app = st.radio(
-        "Avez-vous déjà utilisé une application de gestion budgétaire ?",
-        [
-            "Oui",
-            "Non"
-        ]
-    )
-
-    a_abandonne_app = ""
-
-    if a_deja_utilise_app == "Oui":
-        a_abandonne_app = st.radio(
-            "Avez-vous abandonné cette application ?",
-            [
-                "Oui",
-                "Non"
-            ]
-        )
-
-    raison_abandon = st.text_area(
-        "Si vous avez abandonné une application, pourquoi ?"
-    )
-
-    aisance_sociale = st.radio(
-        "Seriez-vous à l'aise pour participer à un défi financier avec vos proches ?",
-        [
-            "Oui, tout à fait",
-            "Oui, si les montants restent anonymes",
-            "Je ne sais pas",
-            "Non"
         ]
     )
 
@@ -375,11 +322,6 @@ if envoyer:
         "fonctionnalites": ", ".join(fonctionnalites),
         "connexion_bancaire": connexion_bancaire,
         "freins_bancaires": ", ".join(freins_bancaires),
-        "intention_usage": intention_usage,
-        "a_deja_utilise_app": a_deja_utilise_app,
-        "a_abandonne_app": a_abandonne_app,
-        "raison_abandon": raison_abandon,
-        "aisance_sociale": aisance_sociale,
         "prix_premium": prix_premium,
         "commentaire": commentaire,
         "email": email
