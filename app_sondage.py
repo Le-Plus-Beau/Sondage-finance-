@@ -10,311 +10,359 @@ import streamlit as st
 # =====================================
 
 st.set_page_config(
-    page_title="Dépenses personnelles",
+    page_title="Sondage - Gestion des dépenses",
     page_icon="💰",
     layout="centered"
 )
 
-URL_API = st.secrets["URL_API"]
-CLE_API = st.secrets["CLE_API"]
+URL_API = (
+    "https://script.google.com/macros/s/"
+    "AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw"
+    "/exec"
+)
+
+EMAIL_AUTORISE = "izylok@outlook.fr"
 
 
 # =====================================
-# FONCTION D'ENVOI
+# STYLE
 # =====================================
 
-def enregistrer_reponse(reponse):
-    donnees = dict(reponse)
-    donnees["cle"] = CLE_API
+st.markdown(
+    """
+    <style>
+    .main {
+        max-width: 850px;
+        margin: auto;
+    }
 
+    h1 {
+        color: #2563eb;
+    }
+
+    .stButton > button {
+        width: 100%;
+        border-radius: 10px;
+        background-color: #2563eb;
+        color: white;
+        font-weight: bold;
+        padding: 0.7rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# =====================================
+# FONCTION D'ENREGISTREMENT
+# =====================================
+
+def enregistrer_reponse(donnees):
     try:
-        resultat = requests.post(
+        response = requests.post(
             URL_API,
             json=donnees,
             timeout=30
         )
 
-        resultat.raise_for_status()
+        response.raise_for_status()
 
+        # Google Apps Script peut retourner du texte ou du JSON
         try:
-            retour = resultat.json()
+            resultat = response.json()
+
+            if isinstance(resultat, dict):
+                if resultat.get("success") is False:
+                    raise Exception(
+                        resultat.get(
+                            "error",
+                            "Erreur lors de l'enregistrement."
+                        )
+                    )
+
         except ValueError:
-            raise Exception(
-                "La réponse de Google Apps Script n'est pas valide."
-            )
+            # Réponse texte acceptée
+            pass
 
-        if retour.get("success") is not True:
-            raise Exception(
-                retour.get("error", "Erreur lors de l'enregistrement.")
-            )
-
-        return retour
+        return True
 
     except requests.exceptions.RequestException as erreur:
-        raise Exception(f"Erreur de connexion : {erreur}")
+        st.error(f"Erreur de connexion : {erreur}")
+        return False
+
+    except Exception as erreur:
+        st.error(str(erreur))
+        return False
 
 
 # =====================================
 # TITRE
 # =====================================
 
-st.title("💰 Dépenses personnelles")
+st.title("💰 Gestion des dépenses personnelles")
 
 st.write(
-    "Répondez à ce court questionnaire afin de nous aider "
-    "à concevoir une application simple, visuelle et motivante."
+    "Ce questionnaire nous aide à concevoir une application simple, "
+    "visuelle et motivante pour mieux gérer ses dépenses."
 )
 
 st.info(
-    "Questionnaire anonyme : ne renseignez aucune donnée bancaire, "
-    "nom complet ou information sensible."
+    "🔒 Vos réponses sont utilisées uniquement dans le cadre de cette étude."
 )
 
 
 # =====================================
-# QUESTIONS
+# FORMULAIRE
 # =====================================
 
-age = st.number_input(
-    "Quel est votre âge ?",
-    min_value=ที่18,
-    max_value=100,
-    value=25,
-    step=1
-)
+with st.form("formulaire_sondage"):
 
-situation = st.selectbox(
-    "Quelle est votre situation ?",
-    [
-        "Étudiant(e)",
-        "Salarié(e)",
-        "Indépendant(e)",
-        "Sans emploi",
-        "Retraité(e)",
-        "Autre"
-    ]
-)
+    st.subheader("👤 À propos de vous")
 
-revenu = st.selectbox(
-    "Quel est votre revenu mensuel approximatif ?",
-    [
-        "Moins de 1 000 €",
-        "1 000 à 1 500 €",
-        "1 500 à 2 000 €",
-        "2 000 à 3 000 €",
-        "3 000 à 5 000 €",
-        "Plus de 5 000 €",
-        "Je préfère ne pas répondre"
-    ]
-)
-
-outils_actuels = st.multiselect(
-    "Quels outils utilisez-vous actuellement pour gérer votre budget ?",
-    [
-        "Application bancaire",
-        "Excel ou Google Sheets",
-        "Application de gestion budgétaire",
-        "Carnet papier",
-        "Je ne gère pas vraiment mon budget",
-        "Autre"
-    ]
-)
-
-frequence_consultation = st.selectbox(
-    "À quelle fréquence consultez-vous vos dépenses ?",
-    [
-        "Tous les jours",
-        "Plusieurs fois par semaine",
-        "Une fois par semaine",
-        "Quelques fois par mois",
-        "Rarement",
-        "Jamais"
-    ]
-)
-
-difficulte_gestion = st.multiselect(
-    "Quelles sont vos principales difficultés ?",
-    [
-        "Je dépense trop",
-        "Je ne sais pas où va mon argent",
-        "J'ai du mal à épargner",
-        "Je dépense de manière impulsive",
-        "J'oublie mes abonnements",
-        "Je manque de motivation",
-        "Je trouve les applications trop compliquées",
-        "Aucune difficulté particulière"
-    ]
-)
-
-categories_depenses = st.multiselect(
-    "Dans quelles catégories dépensez-vous le plus ?",
-    [
-        "Logement",
-        "Alimentation",
-        "Restaurants et livraisons",
-        "Transport",
-        "Shopping",
-        "Loisirs",
-        "Abonnements",
-        "Voyages",
-        "Autre"
-    ]
-)
-
-difficultes = st.text_area(
-    "Qu'est-ce qui vous frustre le plus dans la gestion de votre budget ?",
-    placeholder="Écrivez votre réponse..."
-)
-
-objectifs = st.multiselect(
-    "Quels objectifs souhaitez-vous atteindre ?",
-    [
-        "Épargner régulièrement",
-        "Préparer un voyage",
-        "Créer une épargne de sécurité",
-        "Réduire mes dépenses",
-        "Éviter les achats impulsifs",
-        "Rembourser une dette",
-        "Mieux comprendre mes habitudes"
-    ]
-)
-
-fonctionnalites = st.multiselect(
-    "Quelles fonctionnalités vous intéressent ?",
-    [
-        "Connexion bancaire",
-        "Catégorisation automatique",
-        "Graphiques clairs",
-        "Recommandations par IA",
-        "Objectifs d'épargne",
-        "Badges et points",
-        "Défis personnels",
-        "Défis entre amis",
-        "Classements anonymes",
-        "Notifications motivantes"
-    ]
-)
-
-connexion_bancaire = st.radio(
-    "Seriez-vous prêt(e) à connecter votre compte bancaire ?",
-    ["Oui", "Non", "Je ne sais pas"],
-    index=None
-)
-
-freins_bancaires = st.multiselect(
-    "Qu'est-ce qui pourrait vous empêcher de connecter votre banque ?",
-    [
-        "Peur pour mes données personnelles",
-        "Peur du piratage",
-        "Manque de confiance",
-        "Procédure trop compliquée",
-        "Je ne veux pas partager mes données",
-        "Aucun frein particulier"
-    ]
-)
-
-intention_usage = st.selectbox(
-    "À quelle fréquence utiliseriez-vous cette application ?",
-    [
-        "Tous les jours",
-        "Plusieurs fois par semaine",
-        "Une fois par semaine",
-        "Quelques fois par mois",
-        "Je ne sais pas"
-    ]
-)
-
-prix_premium = st.selectbox(
-    "Combien seriez-vous prêt(e) à payer pour une version Premium ?",
-    [
-        "0 €",
-        "Moins de 3 €",
-        "3 à 5 €",
-        "5 à 8 €",
-        "Plus de 8 €",
-        "Je ne sais pas"
-    ]
-)
-
-# =====================================
-# QUESTION CONDITIONNELLE
-# =====================================
-
-a_deja_utilise_app = st.radio(
-    "Avez-vous déjà utilisé une application de gestion budgétaire ?",
-    ["Oui", "Non"],
-    index=None
-)
-
-if a_deja_utilise_app == "Oui":
-
-    a_abandonne_app = st.radio(
-        "Avez-vous abandonné cette application ?",
-        ["Oui", "Non"],
-        index=None
+    age = st.selectbox(
+        "Quel est votre âge ?",
+        [
+            "Moins de 18 ans",
+            "18-24 ans",
+            "25-34 ans",
+            "35-44 ans",
+            "45-54 ans",
+            "55 ans et plus"
+        ]
     )
 
-    if a_abandonne_app == "Oui":
-        raison_abandon = st.text_area(
-            "Pourquoi avez-vous abandonné cette application ?",
-            placeholder=(
-                "Exemple : application trop compliquée, "
-                "manque de motivation, trop de notifications..."
-            )
-        )
-    else:
-        raison_abandon = ""
+    situation = st.selectbox(
+        "Quelle est votre situation ?",
+        [
+            "Étudiant(e)",
+            "Salarié(e)",
+            "Indépendant(e) / Freelance",
+            "Demandeur(se) d'emploi",
+            "Retraité(e)",
+            "Autre"
+        ]
+    )
 
-elif a_deja_utilise_app == "Non":
-    a_abandonne_app = "Non concerné"
-    raison_abandon = ""
+    revenu = st.selectbox(
+        "Quel est votre revenu mensuel net approximatif ?",
+        [
+            "Aucun revenu",
+            "Moins de 1 000 €",
+            "1 000 € à 1 499 €",
+            "1 500 € à 1 999 €",
+            "2 000 € à 2 999 €",
+            "3 000 € à 3 999 €",
+            "4 000 € ou plus",
+            "Je préfère ne pas répondre"
+        ]
+    )
 
-else:
+    st.subheader("📊 Vos habitudes")
+
+    outils_actuels = st.multiselect(
+        "Quels outils utilisez-vous pour gérer vos dépenses ?",
+        [
+            "Application bancaire",
+            "Excel ou Google Sheets",
+            "Application de budget",
+            "Carnet papier",
+            "Je ne fais aucun suivi",
+            "Autre"
+        ]
+    )
+
+    frequence_consultation = st.radio(
+        "À quelle fréquence consultez-vous vos dépenses ?",
+        [
+            "Tous les jours",
+            "Plusieurs fois par semaine",
+            "Une fois par semaine",
+            "Quelques fois par mois",
+            "Rarement",
+            "Jamais"
+        ]
+    )
+
+    difficulte_gestion = st.multiselect(
+        "Quelles difficultés rencontrez-vous ?",
+        [
+            "Je dépense trop",
+            "Je ne sais pas où part mon argent",
+            "J'oublie certaines dépenses",
+            "J'ai du mal à épargner",
+            "Je manque de motivation",
+            "Je trouve cela compliqué",
+            "Aucune difficulté particulière",
+            "Autre"
+        ]
+    )
+
+    categories_depenses = st.multiselect(
+        "Dans quelles catégories dépensez-vous le plus ?",
+        [
+            "Logement",
+            "Alimentation",
+            "Restaurants et livraisons",
+            "Transports",
+            "Shopping",
+            "Loisirs",
+            "Abonnements",
+            "Voyages",
+            "Autre"
+        ]
+    )
+
+    difficultes = st.text_area(
+        "Quelle est votre principale difficulté avec votre budget ?"
+    )
+
+    st.subheader("🎯 Objectifs")
+
+    objectifs = st.multiselect(
+        "Quels objectifs aimeriez-vous atteindre ?",
+        [
+            "Épargner régulièrement",
+            "Réduire mes dépenses",
+            "Préparer un voyage",
+            "Créer une épargne de sécurité",
+            "Rembourser des dettes",
+            "Mieux comprendre mes habitudes",
+            "Suivre un budget familial",
+            "Autre"
+        ]
+    )
+
+    st.subheader("📱 Application idéale")
+
+    fonctionnalites = st.multiselect(
+        "Quelles fonctionnalités vous intéresseraient ?",
+        [
+            "Connexion à mes comptes bancaires",
+            "Catégorisation automatique",
+            "Graphiques simples",
+            "Objectifs d'épargne",
+            "Conseils personnalisés",
+            "Détection des dépenses inhabituelles",
+            "Notifications motivantes",
+            "Points et badges",
+            "Défis personnels",
+            "Défis entre amis",
+            "Classements anonymes"
+        ]
+    )
+
+    connexion_bancaire = st.radio(
+        "Seriez-vous prêt(e) à connecter votre compte bancaire ?",
+        [
+            "Oui",
+            "Non",
+            "Je ne sais pas"
+        ]
+    )
+
+    freins_bancaires = st.multiselect(
+        "Qu'est-ce qui pourrait vous empêcher de connecter votre banque ?",
+        [
+            "La sécurité",
+            "La confidentialité",
+            "La peur d'une fraude",
+            "Je ne comprends pas le fonctionnement",
+            "Je ne veux pas partager mes données",
+            "Cela ne me dérange pas",
+            "Autre"
+        ]
+    )
+
+    st.subheader("🎮 Motivation et gamification")
+
+    intention_usage = st.radio(
+        "Une application ludique vous aiderait-elle à mieux gérer votre argent ?",
+        [
+            "Certainement",
+            "Probablement",
+            "Je ne sais pas",
+            "Probablement pas",
+            "Certainement pas"
+        ]
+    )
+
+    a_deja_utilise_app = st.radio(
+        "Avez-vous déjà utilisé une application de gestion budgétaire ?",
+        [
+            "Oui",
+            "Non"
+        ]
+    )
+
     a_abandonne_app = ""
-    raison_abandon = ""
+
+    if a_deja_utilise_app == "Oui":
+        a_abandonne_app = st.radio(
+            "Avez-vous abandonné cette application ?",
+            [
+                "Oui",
+                "Non"
+            ]
+        )
+
+    raison_abandon = st.text_area(
+        "Si vous avez abandonné une application, pourquoi ?"
+    )
+
+    aisance_sociale = st.radio(
+        "Seriez-vous à l'aise pour participer à un défi financier avec vos proches ?",
+        [
+            "Oui, tout à fait",
+            "Oui, si les montants restent anonymes",
+            "Je ne sais pas",
+            "Non"
+        ]
+    )
+
+    st.subheader("💳 Offre payante")
+
+    prix_premium = st.radio(
+        "Quel prix mensuel accepteriez-vous pour une version premium ?",
+        [
+            "Je ne paierais pas",
+            "Moins de 3 €",
+            "3 € à 5 €",
+            "5 € à 8 €",
+            "Plus de 8 €",
+            "Je ne sais pas"
+        ]
+    )
+
+    commentaire = st.text_area(
+        "Avez-vous une remarque ou une idée à nous partager ?"
+    )
+
+    email = st.text_input(
+        "Votre adresse e-mail pour participer à la bêta "
+        "(facultatif)"
+    )
+
+    envoyer = st.form_submit_button(
+        "🚀 Envoyer mes réponses"
+    )
+
 
 # =====================================
-# FIN DU QUESTIONNAIRE
+# TRAITEMENT
 # =====================================
 
-aisance_sociale = st.selectbox(
-    "Seriez-vous à l'aise pour participer à des défis avec vos proches ?",
-    [
-        "Très à l'aise",
-        "Plutôt à l'aise",
-        "Neutre",
-        "Plutôt mal à l'aise",
-        "Pas du tout à l'aise"
-    ]
-)
+if envoyer:
 
-commentaire = st.text_area(
-    "Avez-vous une remarque ou une idée supplémentaire ?"
-)
-
-
-# =====================================
-# BOUTON D'ENVOI
-# =====================================
-
-if st.button("Envoyer ma réponse 🚀", use_container_width=True):
-
-    if a_deja_utilise_app is None:
-        st.warning(
-            "Veuillez répondre à la question sur l'utilisation "
-            "d'une application budgétaire."
+    if email and email.lower().strip() != EMAIL_AUTORISE.lower():
+        st.error(
+            "Cette adresse e-mail n'est pas autorisée pour le moment."
         )
         st.stop()
 
-    if a_deja_utilise_app == "Oui" and a_abandonne_app == "":
-        st.warning(
-            "Veuillez indiquer si vous avez abandonné cette application."
-        )
-        st.stop()
-
-    reponse = {
+    donnees = {
         "id_reponse": str(uuid.uuid4()),
-        "date_reponse": datetime.now().isoformat(timespec="seconds"),
+        "date_reponse": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "age": age,
         "situation": situation,
         "revenu": revenu,
@@ -325,22 +373,22 @@ if st.button("Envoyer ma réponse 🚀", use_container_width=True):
         "difficultes": difficultes,
         "objectifs": ", ".join(objectifs),
         "fonctionnalites": ", ".join(fonctionnalites),
-        "connexion_bancaire": connexion_bancaire or "",
+        "connexion_bancaire": connexion_bancaire,
         "freins_bancaires": ", ".join(freins_bancaires),
         "intention_usage": intention_usage,
-        "prix_premium": prix_premium,
         "a_deja_utilise_app": a_deja_utilise_app,
         "a_abandonne_app": a_abandonne_app,
         "raison_abandon": raison_abandon,
         "aisance_sociale": aisance_sociale,
-        "commentaire": commentaire
+        "prix_premium": prix_premium,
+        "commentaire": commentaire,
+        "email": email
     }
 
-    with st.spinner("Envoi de votre réponse..."):
-        try:
-            enregistrer_reponse(reponse)
-            st.success("✅ Votre réponse a bien été enregistrée !")
-            st.balloons()
+    with st.spinner("Enregistrement de vos réponses..."):
 
-        except Exception as erreur:
-            st.error(f"❌ {erreur}")
+        succes = enregistrer_reponse(donnees)
+
+        if succes:
+            st.success("✅ Vos réponses ont bien été enregistrées.")
+            st.balloons()
