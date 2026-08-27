@@ -15,11 +15,11 @@ st.set_page_config(
     layout="centered"
 )
 
-CLE_API = st.secrets["CLE_API"]
-
 URL_API = (
     "https://script.google.com/macros/s/AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw/exec"
 )
+
+CLE_API = st.secrets["CLE_API"]
 
 
 # =====================================
@@ -335,6 +335,22 @@ aisance_sociale = st.radio(
 
 
 # =====================================
+# INTENTION D'USAGE
+# =====================================
+
+intention_usage = st.radio(
+    "Utiliseriez-vous cette application ?",
+    [
+        "Certainement",
+        "Probablement",
+        "Peut-être",
+        "Probablement pas",
+        "Pas du tout"
+    ]
+)
+
+
+# =====================================
 # OFFRE PREMIUM
 # =====================================
 
@@ -363,6 +379,7 @@ commentaire = st.text_area(
     "Avez-vous une remarque ou une idée à partager ?"
 )
 
+
 # =====================================
 # ENVOI
 # =====================================
@@ -388,8 +405,9 @@ if st.button("🚀 Envoyer mes réponses"):
         "a_deja_utilise_app": a_deja_utilise_app,
         "a_abandonne_app": a_abandonne_app,
         "raison_abandon": raison_abandon,
-        "aisance_sociale": aisance_sociale,
+        "intention_usage": intention_usage,
         "prix_premium": prix_premium,
+        "aisance_sociale": aisance_sociale,
         "commentaire": commentaire,
     }
 
