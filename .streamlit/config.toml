@@ -1,5 +1,4 @@
 [theme]
 base = "dark"
 primaryColor = "#52B788"
-textColor = "#D8F3DC"
 showWidgetBorder = true
