@@ -5,117 +5,24 @@ import requests
 import streamlit as st
 
 
-# =============================
-# Configuration
-# =============================
-
 st.set_page_config(
     page_title="Gestion des dépenses",
     page_icon="💰",
     layout="centered"
 )
 
-# Masquer le menu, l'en-tête et le pied de page Streamlit
-st.markdown(
-    """
-    <style>
-    #MainMenu {
-        visibility: hidden;
-    }
-
-    header {
-        visibility: hidden;
-    }
-
-    footer {
-        visibility: hidden;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    """
-    <style>
-    /* Masquer le menu principal */
-    [data-testid="stMainMenu"] {
-        display: none !important;
-    }
-
-    /* Masquer le pied de page Streamlit */
-    [data-testid="stFooter"] {
-        display: none !important;
-    }
-
-    footer {
-        display: none !important;
-    }
-
-    /* Masquer l'en-tête */
-    header {
-        visibility: hidden !important;
-        height: 0 !important;
-    }
-
-    /* Masquer les boutons de partage et options */
-    [data-testid="stToolbar"] {
-        display: none !important;
-    }
-
-    /* Masquer les liens éventuels vers GitHub */
-    a[href*="github.com"] {
-        display: none !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
 URL_API = (
-    "https://script.google.com/macros/s/"
-    "AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw"
-    "/exec"
+    "https://script.google.com/macros/s/AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw/exec"
 )
 
-EMAIL_AUTORISE = "izylok@outlook.fr"
+CLE_API = st.secrets["CLE_API"]
 
-
-try:
-    CLE_API = st.secrets["CLE_API"]
-except KeyError:
-    st.error("❌ La clé CLE_API est absente des secrets Streamlit.")
-    st.stop()
-
-
-# =============================
-# Contrôle d'accès
-# =============================
-
-st.title("🔐 Accès à l'application")
-
-email = st.text_input(
-    "Adresse e-mail de test",
-    placeholder="exemple@email.com"
-).strip().lower()
-
-if email != EMAIL_AUTORISE:
-    if email:
-        st.error("❌ Cette adresse e-mail n'est pas autorisée.")
-    else:
-        st.info("Veuillez saisir l'adresse e-mail autorisée.")
-
-    st.stop()
-
-st.success("✅ Accès autorisé")
-
-
-# =============================
-# Envoi des réponses
-# =============================
 
 def enregistrer_reponse(reponse):
-    """Envoie une réponse à Google Apps Script."""
+    """
+    Envoie une réponse à Google Apps Script.
+    """
 
     donnees = dict(reponse)
     donnees["cle"] = CLE_API
@@ -129,16 +36,11 @@ def enregistrer_reponse(reponse):
 
         resultat.raise_for_status()
 
-        try:
-            retour = resultat.json()
-        except ValueError:
-            raise Exception(
-                "La réponse de Google Apps Script n'est pas un JSON valide."
-            )
+        retour = resultat.json()
 
         if retour.get("success") is not True:
             raise Exception(
-                retour.get("error", "Erreur inconnue.")
+                retour.get("error", "Erreur inconnue")
             )
 
         return retour
@@ -148,22 +50,14 @@ def enregistrer_reponse(reponse):
             f"Erreur de connexion à l'API : {erreur}"
         )
 
+    except ValueError:
+        raise Exception(
+            "La réponse de Google Apps Script n'est pas un JSON valide."
+        )
 
-# =============================
-# Questionnaire
-# =============================
 
 st.title("💰 Gestion des dépenses personnelles")
-
-st.write(
-    "Répondez à ce court questionnaire afin de nous aider "
-    "à concevoir une application simple et motivante."
-)
-
-st.info(
-    "Questionnaire anonyme : ne renseignez aucune donnée bancaire, "
-    "mot de passe ou information sensible."
-)
+st.write("Répondez à ce court questionnaire.")
 
 
 with st.form("questionnaire"):
@@ -172,7 +66,6 @@ with st.form("questionnaire"):
         "Quel est votre âge ?",
         min_value=15,
         max_value=100,
-        value=25,
         step=1
     )
 
@@ -296,8 +189,7 @@ with st.form("questionnaire"):
     )
 
     raison_abandon = st.text_area(
-        "Pourquoi avez-vous abandonné ou pourriez-vous abandonner "
-        "une telle application ?"
+        "Pourquoi avez-vous abandonné ou pourriez-vous abandonner une telle application ?"
     )
 
     connexion_bancaire = st.radio(
@@ -361,16 +253,11 @@ with st.form("questionnaire"):
     )
 
 
-# =============================
-# Traitement de la réponse
-# =============================
-
 if envoyer:
 
     reponse = {
         "id_reponse": str(uuid.uuid4()),
         "date_reponse": datetime.now().isoformat(timespec="seconds"),
-        "email_test": EMAIL_AUTORISE,
         "age": age,
         "situation": situation,
         "revenu": revenu,
@@ -397,7 +284,6 @@ if envoyer:
 
         if resultat.get("success") is True:
             st.success("✅ Votre réponse a bien été enregistrée !")
-            st.balloons()
         else:
             st.error(
                 resultat.get(
