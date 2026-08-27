@@ -287,5 +287,5 @@ if envoyer:
         else:
             st.error(resultat.get("error", "Une erreur est survenue."))
 
-except Exception as erreur:
-    st.error(f"❌ {erreur}")
+    except Exception as erreur:
+        st.error(f"❌ {erreur}")
