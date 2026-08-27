@@ -280,12 +280,17 @@ if envoyer:
     }
 
     try:
-    resultat = enregistrer_reponse(reponse)
+        resultat = enregistrer_reponse(reponse)
 
-        if resultat.get("success"):
+        if resultat.get("success") is True:
             st.success("✅ Votre réponse a bien été enregistrée !")
         else:
-            st.error(resultat.get("error", "Une erreur est survenue."))
+            st.error(
+                resultat.get(
+                    "error",
+                    "Une erreur est survenue."
+                )
+            )
 
     except Exception as erreur:
         st.error(f"❌ {erreur}")
