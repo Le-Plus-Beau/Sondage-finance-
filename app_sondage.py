@@ -335,22 +335,6 @@ aisance_sociale = st.radio(
 
 
 # =====================================
-# INTENTION D'USAGE
-# =====================================
-
-intention_usage = st.radio(
-    "Utiliseriez-vous cette application ?",
-    [
-        "Certainement",
-        "Probablement",
-        "Peut-être",
-        "Probablement pas",
-        "Pas du tout"
-    ]
-)
-
-
-# =====================================
 # OFFRE PREMIUM
 # =====================================
 
@@ -405,7 +389,6 @@ if st.button("🚀 Envoyer mes réponses"):
         "a_deja_utilise_app": a_deja_utilise_app,
         "a_abandonne_app": a_abandonne_app,
         "raison_abandon": raison_abandon,
-        "intention_usage": intention_usage,
         "prix_premium": prix_premium,
         "aisance_sociale": aisance_sociale,
         "commentaire": commentaire,
