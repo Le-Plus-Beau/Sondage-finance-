@@ -77,6 +77,48 @@ st.info(
 )
 
 
+# =============================
+# Question conditionnelle
+# =============================
+
+a_deja_utilise_app = st.radio(
+    "Avez-vous déjà utilisé une application de gestion budgétaire ?",
+    ["Oui", "Non"],
+    index=None
+)
+
+if a_deja_utilise_app == "Oui":
+
+    a_abandonne_app = st.radio(
+        "Avez-vous abandonné cette application ?",
+        ["Oui", "Non"],
+        index=None
+    )
+
+    if a_abandonne_app == "Oui":
+        raison_abandon = st.text_area(
+            "Pourquoi avez-vous abandonné cette application ?",
+            placeholder=(
+                "Exemple : application trop compliquée, "
+                "manque de motivation, trop de saisie manuelle..."
+            )
+        )
+    else:
+        raison_abandon = ""
+
+elif a_deja_utilise_app == "Non":
+    a_abandonne_app = "Non concerné"
+    raison_abandon = ""
+
+else:
+    a_abandonne_app = ""
+    raison_abandon = ""
+
+
+# =============================
+# Formulaire principal
+# =============================
+
 with st.form("questionnaire"):
 
     age = st.number_input(
@@ -196,32 +238,6 @@ with st.form("questionnaire"):
         ]
     )
 
-    a_deja_utilise_app = st.radio(
-        "Avez-vous déjà utilisé une application de gestion budgétaire ?",
-        ["Oui", "Non"]
-    )
-
-    if a_deja_utilise_app == "Oui":
-        a_abandonne_app = st.radio(
-            "Avez-vous abandonné cette application ?",
-            ["Oui", "Non"]
-        )
-
-        if a_abandonne_app == "Oui":
-            raison_abandon = st.text_area(
-                "Pourquoi avez-vous abandonné cette application ?",
-                placeholder=(
-                    "Exemple : application trop compliquée, "
-                    "manque de motivation, problèmes de connexion..."
-                )
-            )
-        else:
-            raison_abandon = ""
-
-    else:
-        a_abandonne_app = "Non concerné"
-        raison_abandon = ""
-
     connexion_bancaire = st.radio(
         "Seriez-vous prêt(e) à connecter votre compte bancaire ?",
         ["Oui", "Non", "Peut-être"]
@@ -288,6 +304,13 @@ with st.form("questionnaire"):
 # =============================
 
 if envoyer:
+
+    if a_deja_utilise_app is None:
+        st.warning(
+            "Veuillez répondre à la question sur l'utilisation "
+            "d'une application budgétaire."
+        )
+        st.stop()
 
     reponse = {
         "id_reponse": str(uuid.uuid4()),
