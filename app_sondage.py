@@ -35,6 +35,43 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.markdown(
+    """
+    <style>
+    /* Masquer le menu principal */
+    [data-testid="stMainMenu"] {
+        display: none !important;
+    }
+
+    /* Masquer le pied de page Streamlit */
+    [data-testid="stFooter"] {
+        display: none !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    /* Masquer l'en-tête */
+    header {
+        visibility: hidden !important;
+        height: 0 !important;
+    }
+
+    /* Masquer les boutons de partage et options */
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
+
+    /* Masquer les liens éventuels vers GitHub */
+    a[href*="github.com"] {
+        display: none !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 URL_API = (
     "https://script.google.com/macros/s/"
     "AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw"
