@@ -21,6 +21,7 @@ URL_API = (
     "/exec"
 )
 
+
 # =====================================
 # STYLE
 # =====================================
@@ -278,7 +279,7 @@ freins_bancaires = st.multiselect(
 
 
 # =====================================
-# EXPÉRIENCE APPLICATIONS
+# EXPÉRIENCE AVEC LES APPLICATIONS
 # =====================================
 
 st.header("📱 Expérience avec les applications")
