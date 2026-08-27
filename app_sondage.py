@@ -363,11 +363,6 @@ commentaire = st.text_area(
     "Avez-vous une remarque ou une idée à partager ?"
 )
 
-email = st.text_input(
-    "Votre adresse e-mail pour participer à la bêta (facultatif)"
-)
-
-
 # =====================================
 # ENVOI
 # =====================================
@@ -395,7 +390,6 @@ if st.button("🚀 Envoyer mes réponses"):
         "aisance_sociale": aisance_sociale,
         "prix_premium": prix_premium,
         "commentaire": commentaire,
-        "email": email
     }
 
     with st.spinner("Enregistrement de vos réponses..."):
