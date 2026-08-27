@@ -16,9 +16,7 @@ st.set_page_config(
 )
 
 URL_API = (
-    "https://script.google.com/macros/s/"
-    "AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw"
-    "/exec"
+    "https://script.google.com/macros/s/AKfycbwDbPWxlSnG5DIHzdD1w550Q9YEabB43xp9bN28VcAR6bKuv11yMaOWJ3_mVw90imoiNw/exec"
 )
 
 
