@@ -55,6 +55,37 @@ def enregistrer_reponse(reponse):
             "La réponse de Google Apps Script n'est pas un JSON valide."
         )
 
+st.markdown(
+    """
+    <style>
+    /* Cases sélectionnées dans les multiselect */
+    div[data-baseweb="tag"] {
+        background-color: #b7e4c7 !important; /* vert pastel */
+        color: #1b4332 !important;
+        border: 1px solid #95d5b2 !important;
+        border-radius: 8px !important;
+    }
+
+    /* Texte des choix sélectionnés */
+    div[data-baseweb="tag"] span {
+        color: #1b4332 !important;
+        font-weight: 500;
+    }
+
+    /* Bouton pour supprimer une sélection */
+    div[data-baseweb="tag"] svg {
+        color: #2d6a4f !important;
+    }
+
+    /* Option sélectionnée dans le menu déroulant */
+    li[aria-selected="true"] {
+        background-color: #d8f3dc !important;
+        color: #1b4332 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 st.title("💰 Gestion des dépenses personnelles")
 st.write("Répondez à ce court questionnaire.")
