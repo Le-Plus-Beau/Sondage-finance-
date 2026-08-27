@@ -111,6 +111,36 @@ st.info(
 
 
 # =====================================
+# EXPÉRIENCE AVEC LES APPLICATIONS
+# =====================================
+
+st.subheader("📱 Expérience avec les applications")
+
+a_deja_utilise_app = st.radio(
+    "Avez-vous déjà utilisé une application de gestion budgétaire ?",
+    ["Oui", "Non"],
+    key="a_deja_utilise_app"
+)
+
+a_abandonne_app = ""
+raison_abandon = ""
+
+if a_deja_utilise_app == "Oui":
+
+    a_abandonne_app = st.radio(
+        "Avez-vous abandonné cette application ?",
+        ["Oui", "Non"],
+        key="a_abandonne_app"
+    )
+
+    if a_abandonne_app == "Oui":
+        raison_abandon = st.text_area(
+            "Si vous avez abandonné une application, pourquoi ?",
+            key="raison_abandon"
+        )
+
+
+# =====================================
 # FORMULAIRE
 # =====================================
 
@@ -189,6 +219,7 @@ with st.form("formulaire_sondage"):
             "Je ne sais pas où part mon argent",
             "J'oublie certaines dépenses",
             "J'ai du mal à épargner",
+            "Je manque de motivation",
             "Je trouve cela compliqué",
             "Aucune difficulté particulière",
             "Autre"
@@ -241,7 +272,10 @@ with st.form("formulaire_sondage"):
             "Objectifs d'épargne",
             "Conseils personnalisés",
             "Détection des dépenses inhabituelles",
-            "Notifications utiles"
+            "Notifications",
+            "Défis personnels",
+            "Défis entre amis",
+            "Classements anonymes"
         ]
     )
 
@@ -267,6 +301,18 @@ with st.form("formulaire_sondage"):
         ]
     )
 
+    st.subheader("👥 Dimension sociale")
+
+    aisance_sociale = st.radio(
+        "Seriez-vous à l'aise pour participer à un défi financier avec vos proches ?",
+        [
+            "Oui, tout à fait",
+            "Oui, si les montants restent anonymes",
+            "Je ne sais pas",
+            "Non"
+        ]
+    )
+
     st.subheader("💳 Offre payante")
 
     prix_premium = st.radio(
@@ -286,8 +332,7 @@ with st.form("formulaire_sondage"):
     )
 
     email = st.text_input(
-        "Votre adresse e-mail pour participer à la bêta "
-        "(facultatif)"
+        "Votre adresse e-mail pour participer à la bêta (facultatif)"
     )
 
     envoyer = st.form_submit_button(
@@ -322,6 +367,10 @@ if envoyer:
         "fonctionnalites": ", ".join(fonctionnalites),
         "connexion_bancaire": connexion_bancaire,
         "freins_bancaires": ", ".join(freins_bancaires),
+        "a_deja_utilise_app": a_deja_utilise_app,
+        "a_abandonne_app": a_abandonne_app,
+        "raison_abandon": raison_abandon,
+        "aisance_sociale": aisance_sociale,
         "prix_premium": prix_premium,
         "commentaire": commentaire,
         "email": email
