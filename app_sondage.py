@@ -373,10 +373,6 @@ email = st.text_input(
 
 if st.button("🚀 Envoyer mes réponses"):
 
-    if email and email.lower().strip() != EMAIL_AUTORISE.lower():
-        st.error("Cette adresse e-mail n'est pas autorisée pour le moment.")
-        st.stop()
-
     donnees = {
         "id_reponse": str(uuid.uuid4()),
         "date_reponse": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
